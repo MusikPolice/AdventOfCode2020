@@ -30,16 +30,15 @@ public class Part1 {
                 operator = Operator.MULTIPLICATION;
             } else if ("(".equals(s)) {
                 // if something has already been computed, push it onto the stack
-                // an expression like ((2 + 4) * 5) + 1 will hit the null case parsing the first ( characters
-                if (result != null && operator != null) {
-                    stack.push(new Expression(result, operator));
-                    result = null;
-                }
+                // an expression like ((2 + 4) * 5) + 1 will push an Expression with a null operator/operand onto the stack
+                stack.push(new Expression(result, operator));
+                result = null;
+                operator = null;
             } else if (")".equals(s)) {
                 // if there is a computed result from earlier, pop it off of stack
-                // stack could be empty if the expression started with ( and we didn't push anything onto the stack
-                if (!stack.isEmpty()) {
-                    final Expression old = stack.pop();
+                // an Expression with a null operand or a null operator indicates ((, so don't try to evaluate it
+                final Expression old = stack.pop();
+                if (old.operand != null && old.operator != null) {
                     result = evaluate(old.operand, old.operator, result);
                 }
             } else {
@@ -68,10 +67,10 @@ public class Part1 {
     }
 
     private static class Expression {
-        private final long operand;
+        private final Long operand;
         private final Operator operator;
 
-        private Expression(long operand, Operator operator) {
+        private Expression(Long operand, Operator operator) {
             this.operand = operand;
             this.operator = operator;
         }
